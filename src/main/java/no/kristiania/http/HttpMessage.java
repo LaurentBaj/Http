@@ -13,6 +13,19 @@ public class HttpMessage {
         this.startLine = startLine;
     }
 
+    public static String readLine(Socket socket) throws IOException {
+        StringBuilder line = new StringBuilder();
+        int c;
+        while ((c = socket.getInputStream().read()) != -1) {
+            if (c == '\r') {
+                socket.getInputStream().read();
+                break;
+            }
+            line.append((char)c);
+        }
+        return line.toString();
+    }
+
     public void setHeader(String name, String value) {
         headers.put(name, value);
     }
