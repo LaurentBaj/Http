@@ -7,9 +7,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class HttpServer {
-
     private static File documentRoot;
-
 
     public HttpServer(int port)  throws IOException{
         ServerSocket serverSocket = new ServerSocket(port);
@@ -83,8 +81,8 @@ public class HttpServer {
         server.setDocumentRoot(new File("src/main/resources"));
     }
 
-
     public void setDocumentRoot(File documentRoot) {
         this.documentRoot = documentRoot;
     }
+
 }
