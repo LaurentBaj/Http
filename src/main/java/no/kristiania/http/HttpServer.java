@@ -24,11 +24,6 @@ public class HttpServer {
         }).start();
     }
 
-    public static void main(String[] args) throws IOException {
-        System.out.println("Visit 'localhost:8080' to interact with server");
-        new HttpServer(8080);
-    }
-
     private static void handleRequest(Socket clientSocket) throws IOException {
         String requestLine = HttpClient.readLine(clientSocket);
         System.out.println(requestLine);
@@ -50,9 +45,14 @@ public class HttpServer {
                 return;
             }
 
+            String contentType = "text/html";
+            if (targetFile.getName().endsWith(".txt")) {
+                contentType = "text/plain";
+            }
+
             String responseHeaders = "HTTP/1.1 200 OK\r\n" +
                     "Content-Length: " + targetFile.length() + "\r\n" +
-                    "Content-Type: " + "text/plain\r\n" +
+                    "Content-Type: " + contentType + "\r\n" +
                     "\r\n";
             clientSocket.getOutputStream().write(responseHeaders.getBytes());
             try (FileInputStream inputStream = new FileInputStream(targetFile)) {
@@ -74,6 +74,13 @@ public class HttpServer {
                 body;
 
         clientSocket.getOutputStream().write(response.getBytes());
+    }
+
+
+    public static void main(String[] args) throws IOException {
+        System.out.println("Visit 'localhost:8080' to interact with server");
+        HttpServer server = new HttpServer(8080);
+        server.setDocumentRoot(new File("src/main/resources"));
     }
 
 
