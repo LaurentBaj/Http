@@ -41,6 +41,10 @@ public class HttpServer {
         }
         if (body == null) body = "<string>Hello World!</strong>";
 
+        writeResponse(clientSocket, statusCode, body);
+    }
+
+    private static void writeResponse(Socket clientSocket, String statusCode, String body) throws IOException {
         String response = "HTTP/1.1 " + statusCode + " OK\r\n" +
                 "Content-Length: " + body.length() + "\r\n" +
                 "Content-Type: text/plain\r\n" +
