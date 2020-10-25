@@ -1,10 +1,15 @@
 package no.kristiania.http;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class HttpServer {
+
+    private static File documentRoot;
+
 
     public HttpServer(int port)  throws IOException{
         ServerSocket serverSocket = new ServerSocket(port);
@@ -36,9 +41,20 @@ public class HttpServer {
         if (questionPos != -1) {
             QueryString queryString = new QueryString(requestTarget.substring(questionPos + 1));
             statusCode = queryString.getParameter("status");
-            if (statusCode == null) statusCode = "200";
             body = queryString.getParameter("body");
+        } else if (!requestTarget.equals("/echo")){
+            File targetFile = new File(documentRoot, requestTarget);
+            String responseHeaders = "HTTP/1.1 200 OK\r\n" +
+                    "Content-Length: " + targetFile.length() + "\r\n" +
+                    "Content-Type: " + "text/plain\r\n" +
+                    "\r\n";
+            clientSocket.getOutputStream().write(responseHeaders.getBytes());
+            try (FileInputStream inputStream = new FileInputStream(targetFile)) {
+                inputStream.transferTo(clientSocket.getOutputStream());
+            }
         }
+
+        if (statusCode == null) statusCode = "200";
         if (body == null) body = "<string>Hello World!</strong>";
 
         writeResponse(clientSocket, statusCode, body);
@@ -54,4 +70,8 @@ public class HttpServer {
         clientSocket.getOutputStream().write(response.getBytes());
     }
 
+
+    public void setDocumentRoot(File documentRoot) {
+        this.documentRoot = documentRoot;
+    }
 }
