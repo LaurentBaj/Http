@@ -8,56 +8,24 @@ import java.util.Map;
 public class HttpClient {
 
     private int statusCode;
-    private Map<String, String> headers = new HashMap<>();
+    private Map<String, String> responseHeaders = new HashMap<>();
     private String responseBody;
 
     public HttpClient(final String hostname, int port, final String requestTarget) throws IOException {
-        Socket socket = new Socket(hostname, port);
-
-        String request = "GET " + requestTarget + " HTTP/1.1\r\n" +
-                "Host: " + hostname + "\r\n" +
-                "\r\n";
-
-        HttpMessage requestMessage = new HttpMessage("GET " + requestTarget + " HTTP/1.1");
-        requestMessage.setHeader("Host", hostname);
-        requestMessage.write(socket);
-
-        String[] parts = readLine(socket).split(" ");
-
-        statusCode = Integer.parseInt(parts[1]);
-
-        String headerLine;
-        while (!(headerLine = readLine(socket)).isEmpty()) {
-            int colonPos = headerLine.indexOf(':');
-            String headerName = headerLine.substring(0, colonPos);
-            String headerValue = headerLine.substring(colonPos+1).trim();
-
-            headers.put(headerName, headerValue);
-        }
-
-        int contentLength = Integer.parseInt(getResponseHeader("Content-Length"));
-        StringBuilder body = new StringBuilder();
-        for (int i = 0; i < contentLength; i++) {
-            body.append((char)socket.getInputStream().read());
-        }
-        responseBody = body.toString();
+        this(hostname, port, requestTarget, "GET", null);
     }
 
-    public static String readLine(Socket socket) throws IOException {
-        StringBuilder line = new StringBuilder();
-        int c;
-        while ((c = socket.getInputStream().read()) != -1) {
-            if (c == '\r') {
-                socket.getInputStream().read();
-                break;
-            }
-            line.append((char)c);
-        }
-        return line.toString();
+    public HttpClient(String hostname, int port, String requestTarget, String method, QueryString form) throws IOException{
+        Socket socket = new Socket(hostname, port);
+
+        String requestBody = form.getQueryString();
+
+        HttpMessage requestMessage = new HttpMessage(socket);
+
     }
 
     public static void main(String[] args) throws IOException {
-        HttpClient client = new HttpClient("urlecho.appspot.com", 80, "/echo?body=Hello+worlds+is+good+to+be+here");
+        HttpClient client = new HttpClient("urlecho.appspot.com", 80, "/echo?status=404&Content-Type=text%2Fhtml&body=Hello+world");
         System.out.println(client.getResponseBody());
     }
 
@@ -66,7 +34,7 @@ public class HttpClient {
     }
 
     public String getResponseHeader(String headerName) {
-        return headers.get(headerName);
+        return responseHeaders.get(headerName);
     }
 
     public String getResponseBody() {
