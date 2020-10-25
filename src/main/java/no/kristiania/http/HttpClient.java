@@ -8,8 +8,9 @@ import java.util.Map;
 public class HttpClient {
 
     private int statusCode;
-    private Map<String, String> headers = new HashMap<>();
+    private Map<String, String> responseHeaders = new HashMap<>();
     private String responseBody;
+    private HttpMessage responseMessage;
 
     public HttpClient(final String hostname, int port, final String requestTarget) throws IOException {
         Socket socket = new Socket(hostname, port);
@@ -23,7 +24,6 @@ public class HttpClient {
         String[] responseLineParts = responseLine.split(" ");
         HttpMessage responseMessage = new HttpMessage(responseLine);
 
-
         statusCode = Integer.parseInt(responseLineParts[1]);
 
         String headerLine;
@@ -31,8 +31,9 @@ public class HttpClient {
             int colonPos = headerLine.indexOf(':');
             String headerName = headerLine.substring(0, colonPos);
             String headerValue = headerLine.substring(colonPos+1).trim();
-
-            headers.put(headerName, headerValue);
+            
+            
+            responseHeaders.put(headerName, headerValue);
         }
 
         int contentLength = Integer.parseInt(getResponseHeader("Content-Length"));
@@ -66,7 +67,7 @@ public class HttpClient {
     }
 
     public String getResponseHeader(String headerName) {
-        return headers.get(headerName);
+        return responseHeaders.get(headerName);
     }
 
     public String getResponseBody() {
