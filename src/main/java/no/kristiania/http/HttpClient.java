@@ -18,7 +18,9 @@ public class HttpClient {
                 "Host: " + hostname + "\r\n" +
                 "\r\n";
 
-        socket.getOutputStream().write(request.getBytes());
+        HttpMessage requestMessage = new HttpMessage("GET " + requestTarget + " HTTP/1.1");
+        requestMessage.setHeader("Host", hostname);
+        requestMessage.write(socket);
 
         String[] parts = readLine(socket).split(" ");
 
