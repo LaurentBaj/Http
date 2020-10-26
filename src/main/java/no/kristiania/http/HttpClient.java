@@ -32,7 +32,7 @@ public class HttpClient {
             String headerName = headerLine.substring(0, colonPos);
             String headerValue = headerLine.substring(colonPos+1).trim();
             
-            
+            responseMessage.setHeader(headerName, headerValue);
             responseHeaders.put(headerName, headerValue);
         }
 
