@@ -100,7 +100,6 @@ public class HttpServer {
         String statusCode = "200";
         String body = "Hello <strong>World</strong>!";
         if (questionPos != -1) {
-            // body=hello
             QueryString queryString = new QueryString(requestTarget.substring(questionPos + 1));
             if (queryString.getParameter("status") != null) {
                 statusCode = queryString.getParameter("status");
