@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -59,6 +60,24 @@ public class HttpServerTest {
         Files.writeString(new File(documentRoot, "Example.txt").toPath(), "Tyger Tyger burning bright");
         HttpClient client = new HttpClient("localhost", 10007, "/Example.txt");
         assertEquals("text/plain", client.getResponseHeader("Content-Type"));
+    }
+
+
+    @Test
+    void shouldPostNewProduct() throws IOException {
+        HttpServer server = new HttpServer(10008);
+        String requestBody = "memberName=John&memberEmail=John@hotmail.com";
+        HttpClient client = new HttpClient("localhost", 10008, "/api/newMember", "POST", requestBody);
+        assertEquals(200, client.getStatusCode());
+        assertEquals(List.of("John"), server.getMemberNames());
+    }
+
+    @Test
+    void shouldReturnExistingProducts() throws IOException {
+        HttpServer server = new HttpServer(10009);
+        server.getMemberNames().add("Daniel");
+        HttpClient client = new HttpClient("localhost", 10009, "/api/members");
+        assertEquals("<ul><li>Daniel</li></ul>", client.getResponseBody());
     }
 
 }

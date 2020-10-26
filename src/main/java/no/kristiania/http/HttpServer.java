@@ -39,11 +39,11 @@ public class HttpServer {
 
         if (requestMethod.equals("POST")) {
             QueryString requestParameter = new QueryString(request.getBody());
-
             memberNames.add(requestParameter.getParameter("memberName"));
-            String body = "Okay";
+            String body = "HTTP/1.1 200 OK\r\n";
             String response = "HTTP/1.1 200 OK\r\n" +
                     "Content-Length: " + body.length() + "\r\n" +
+                    "Connection: close" + "\r\n" +
                     "\r\n" +
                     body;
             clientSocket.getOutputStream().write(response.getBytes());
@@ -121,14 +121,14 @@ public class HttpServer {
     public static void main(String[] args) throws IOException {
         HttpServer server = new HttpServer(8080);
         server.setContentRoot(new File("src/main/resources"));
-        System.out.println("Go to 'localhost:8080/index.html' to interact with the server");
+        System.out.println("Go to -> localhost:8080/index.html <- to interact with the server");
     }
 
     public void setContentRoot(File contentRoot) {
         this.contentRoot = contentRoot;
     }
 
-    public List<String> getProductNames() {
+    public List<String> getMemberNames() {
         return memberNames;
     }
 }
