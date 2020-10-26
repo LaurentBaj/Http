@@ -10,55 +10,39 @@ public class HttpClient {
     private int statusCode;
     private Map<String, String> responseHeaders = new HashMap<>();
     private String responseBody;
-    private HttpMessage responseMessage;
 
     public HttpClient(final String hostname, int port, final String requestTarget) throws IOException {
-        Socket socket = new Socket(hostname, port);
-
-
-        HttpMessage requestMessage = new HttpMessage("GET " + requestTarget + " HTTP/1.1");
-        requestMessage.setHeader("Host", hostname);
-        requestMessage.write(socket);
-
-        String responseLine = HttpMessage.readLine(socket);
-        String[] responseLineParts = responseLine.split(" ");
-        HttpMessage responseMessage = new HttpMessage(responseLine);
-
-        statusCode = Integer.parseInt(responseLineParts[1]);
-
-        String headerLine;
-        while (!(headerLine = readLine(socket)).isEmpty()) {
-            int colonPos = headerLine.indexOf(':');
-            String headerName = headerLine.substring(0, colonPos);
-            String headerValue = headerLine.substring(colonPos+1).trim();
-            
-            responseMessage.setHeader(headerName, headerValue);
-            responseHeaders.put(headerName, headerValue);
-        }
-
-        int contentLength = Integer.parseInt(getResponseHeader("Content-Length"));
-        StringBuilder body = new StringBuilder();
-        for (int i = 0; i < contentLength; i++) {
-            body.append((char)socket.getInputStream().read());
-        }
-        responseBody = body.toString();
+        this(hostname, port, requestTarget, "GET", null);
     }
 
-    public static String readLine(Socket socket) throws IOException {
-        StringBuilder line = new StringBuilder();
-        int c;
-        while ((c = socket.getInputStream().read()) != -1) {
-            if (c == '\r') {
-                socket.getInputStream().read();
-                break;
-            }
-            line.append((char)c);
+    public HttpClient(final String hostname, int port, final String requestTarget, final String httpMethod, String requestBody) throws IOException {
+        Socket socket = new Socket(hostname, port);
+
+        String contentLengthHeader = requestBody != null ? "Content-Length: " + requestBody.length() + "\r\n" : "";
+        String request = httpMethod + " " + requestTarget + " HTTP/1.1\r\n" +
+                "Host: " + hostname + "\r\n" +
+                contentLengthHeader +
+                "\r\n";
+
+        socket.getOutputStream().write(request.getBytes());
+
+        if (requestBody != null) {
+            socket.getOutputStream().write(requestBody.getBytes());
         }
-        return line.toString();
+
+        HttpMessage response = new HttpMessage(socket);
+
+        String responseLine = response.getStartLine();
+        responseHeaders = response.getHeaders();
+        responseBody = response.getBody();
+
+        String[] responseLineParts = responseLine.split(" ");
+
+        statusCode = Integer.parseInt(responseLineParts[1]);
     }
 
     public static void main(String[] args) throws IOException {
-        HttpClient client = new HttpClient("urlecho.appspot.com", 80, "/echo?body=Hello+worlds+is+good+to+be+here");
+        HttpClient client = new HttpClient("urlecho.appspot.com", 80, "/echo?status=404&Content-Type=text%2Fhtml&body=Hello+world");
         System.out.println(client.getResponseBody());
     }
 

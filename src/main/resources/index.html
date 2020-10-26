@@ -5,11 +5,12 @@
     <title>Hello World</title>
 </head>
 <body>
-    <h1>Hello World!</h1>
-    <form method="post" action="/addMember">
-        <p>Member Name <input name="memberName"></p>
-        <p>Member Email <input name="memberEmail"></p>
-        <p><button>Submit</button></p>
-    </form>
+    <h1>Add Members</h1>
+<div id="members"></div>
 </body>
+<script>
+    fetch("/api/members").then(response => response.text()).then(html => {
+        document.getElementById("members").innerHTML = html;
+    });
+</script>
 </html>
