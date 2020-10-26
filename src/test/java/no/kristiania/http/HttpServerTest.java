@@ -36,7 +36,7 @@ public class HttpServerTest {
     void shouldReturnFileContent() throws IOException {
         HttpServer server = new HttpServer(10005);
         File documentRoot = new File("target");
-        server.setDocumentRoot(documentRoot);
+        server.setContentRoot(documentRoot);
         String fileContent = "Hello " + new Date();
         Files.writeString(new File(documentRoot, "index.html").toPath(), fileContent);
         HttpClient client = new HttpClient("localhost", 10005, "/index.html");
@@ -46,7 +46,7 @@ public class HttpServerTest {
     @Test
     void shouldReturn404MissingFile() throws IOException {
         HttpServer server = new HttpServer(10006);
-        server.setDocumentRoot(new File("target"));
+        server.setContentRoot(new File("target"));
         HttpClient client = new HttpClient("localhost", 10006, "/communistManifesto");
         assertEquals(404, client.getStatusCode());
     }
@@ -55,7 +55,7 @@ public class HttpServerTest {
     void shouldReturnCorrectContentType() throws IOException {
         HttpServer server = new HttpServer(10007);
         File documentRoot = new File("target");
-        server.setDocumentRoot(documentRoot);
+        server.setContentRoot(documentRoot);
         Files.writeString(new File(documentRoot, "Example.txt").toPath(), "Tyger Tyger burning bright");
         HttpClient client = new HttpClient("localhost", 10007, "/Example.txt");
         assertEquals("text/plain", client.getResponseHeader("Content-Type"));
