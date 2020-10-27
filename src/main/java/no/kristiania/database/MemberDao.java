@@ -14,6 +14,12 @@ import java.util.Scanner;
 public class MemberDao {
 
     private ArrayList<String> members = new ArrayList<>();
+    private DataSource dataSource;
+
+    public MemberDao(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
 
     public static void main(String[] args) throws SQLException {
         PGSimpleDataSource dataSource = new PGSimpleDataSource();
@@ -43,7 +49,13 @@ public class MemberDao {
         }
     }
 
-    public void insert(String member) {
+    public void insert(String member) throws SQLException {
+        try (Connection connection = dataSource.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement("INSERT INTO members (member_name) VALUES (?)")) {
+                statement.setString(1, member);
+                statement.executeUpdate();
+            }
+        }
         members.add(member);
     }
 
