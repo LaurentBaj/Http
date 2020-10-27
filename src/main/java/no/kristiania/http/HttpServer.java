@@ -40,7 +40,7 @@ public class HttpServer {
         if (requestMethod.equals("POST")) {
             QueryString requestParameter = new QueryString(request.getBody());
             memberNames.add(requestParameter.getParameter("memberName"));
-            String body = "HTTP/1.1 200 OK\r\n";
+            String body = "New member added\r\n";
             String response = "HTTP/1.1 200 OK\r\n" +
                     "Content-Length: " + body.length() + "\r\n" +
                     "Connection: close" + "\r\n" +
@@ -100,7 +100,6 @@ public class HttpServer {
         String statusCode = "200";
         String body = "Hello <strong>World</strong>!";
         if (questionPos != -1) {
-            // body=hello
             QueryString queryString = new QueryString(requestTarget.substring(questionPos + 1));
             if (queryString.getParameter("status") != null) {
                 statusCode = queryString.getParameter("status");
