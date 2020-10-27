@@ -7,10 +7,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class MemberDao {
+
+    private ArrayList<String> members = new ArrayList<>();
 
     public static void main(String[] args) throws SQLException {
         PGSimpleDataSource dataSource = new PGSimpleDataSource();
@@ -41,9 +44,10 @@ public class MemberDao {
     }
 
     public void insert(String member) {
+        members.add(member);
     }
 
     public List<String> list() {
-        return null;
+        return members;
     }
 }
