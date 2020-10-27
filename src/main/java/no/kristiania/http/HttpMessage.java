@@ -6,19 +6,29 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HttpMessage {
-    private String startLine;
-    private Map<String, String> headers = new HashMap<>();
+    private final String startLine;
+    private final Map<String, String> headers;
+    private final String body;
 
-    public HttpMessage(String startLine) {
-        this.startLine = startLine;
+    public HttpMessage(Socket socket) throws IOException {
+        startLine = readLine(socket);
+        headers = readHeaders(socket);
+
+        String contentLength = headers.get("Content-Length");
+        if (contentLength != null) {
+            body = readBody(socket, Integer.parseInt(contentLength));
+        } else {
+            body = null;
+        }
     }
 
     public static String readLine(Socket socket) throws IOException {
         StringBuilder line = new StringBuilder();
         int c;
         while ((c = socket.getInputStream().read()) != -1) {
+            // each line ends with \r\n (CRLF - carriage return, line feed)
             if (c == '\r') {
-                socket.getInputStream().read();
+                socket.getInputStream().read(); // read and ignore the following \n
                 break;
             }
             line.append((char)c);
@@ -26,19 +36,36 @@ public class HttpMessage {
         return line.toString();
     }
 
-    public void setHeader(String name, String value) {
-        headers.put(name, value);
-    }
-
-    public void write(Socket socket) throws IOException {
-        writeLine(socket, startLine);
-        for (Map.Entry<String, String> header : headers.entrySet()) {
-            writeLine(socket, header.getKey() + ": " + header.getValue());
+    static String readBody(Socket socket, int contentLength) throws IOException {
+        StringBuilder body = new StringBuilder();
+        for (int i = 0; i < contentLength; i++) {
+            // Read content body based on content-length
+            body.append((char) socket.getInputStream().read());
         }
-        writeLine(socket, "");
+        return body.toString();
     }
 
-    private void writeLine(Socket socket, String startLine) throws IOException {
-        socket.getOutputStream().write((startLine + "\r\n").getBytes());
+    static Map<String, String> readHeaders(Socket socket) throws IOException {
+        Map<String, String> headers = new HashMap<>();
+        String headerLine;
+        while (!(headerLine = readLine(socket)).isEmpty()) {
+            int colonPos = headerLine.indexOf(':');
+            String headerName = headerLine.substring(0, colonPos);
+            String headerValue = headerLine.substring(colonPos+1).trim();
+            headers.put(headerName, headerValue);
+        }
+        return headers;
+    }
+
+    public String getStartLine() {
+        return startLine;
+    }
+
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    public String getBody() {
+        return body;
     }
 }
