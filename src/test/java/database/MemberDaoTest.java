@@ -16,7 +16,7 @@ public class MemberDaoTest {
     @Test
     void shouldListInsertedMembers() throws SQLException {
         JdbcDataSource dataSource = new JdbcDataSource();
-        dataSource.setUrl("jdbc:h2:mem:testdatabase;DB_CLOSE_DELAY=-1");
+        dataSource.setUrl("jdbc:h2:mem:testdatabase;DB_CLOSE_DELAY=-1"); 
         try (Connection connection = dataSource.getConnection()) {
             connection.prepareStatement("create table members (member_name varchar)").executeUpdate();
         }
