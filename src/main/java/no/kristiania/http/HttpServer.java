@@ -40,7 +40,7 @@ public class HttpServer {
         if (requestMethod.equals("POST")) {
             QueryString requestParameter = new QueryString(request.getBody());
             memberNames.add(requestParameter.getParameter("memberName"));
-            String body = "HTTP/1.1 200 OK\r\n";
+            String body = "New member added\r\n";
             String response = "HTTP/1.1 200 OK\r\n" +
                     "Content-Length: " + body.length() + "\r\n" +
                     "Connection: close" + "\r\n" +
