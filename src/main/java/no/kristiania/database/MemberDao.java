@@ -33,22 +33,8 @@ public class MemberDao {
         String memberName = scanner.next();
 
         memberDao.insert(memberName);
-
-        try (Connection connection = dataSource.getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement("INSERT INTO members (member_name) VALUES (?)")) {
-                statement.setString(1, memberName);
-                statement.executeUpdate();
-            }
-        }
-
-        try (Connection connection = dataSource.getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM members")) {
-                try (ResultSet rs = statement.executeQuery()) {
-                    while (rs.next()) {
-                        System.out.println(rs.getString("member_name"));
-                    }
-                }
-            }
+        for (String member : memberDao.list()) {
+            System.out.println(member);
         }
     }
 
