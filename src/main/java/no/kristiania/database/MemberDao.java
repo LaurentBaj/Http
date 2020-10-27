@@ -13,7 +13,6 @@ import java.util.Scanner;
 
 public class MemberDao {
 
-    private ArrayList<String> members = new ArrayList<>();
     private DataSource dataSource;
 
     public MemberDao(DataSource dataSource) {
@@ -27,9 +26,13 @@ public class MemberDao {
         dataSource.setUser("kristianiashopuser");
         dataSource.setPassword("abc");
 
-        System.out.println("Enter member name: ");
+        MemberDao memberDao = new MemberDao(dataSource);
+
+        System.out.print("Enter member name: ");
         Scanner scanner = new Scanner(System.in);
         String memberName = scanner.next();
+
+        memberDao.insert(memberName);
 
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("INSERT INTO members (member_name) VALUES (?)")) {
@@ -56,10 +59,19 @@ public class MemberDao {
                 statement.executeUpdate();
             }
         }
-        members.add(member);
     }
 
-    public List<String> list() {
+    public List<String> list() throws SQLException {
+        List<String> members = new ArrayList<>();
+        try (Connection connection = dataSource.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM members")) {
+                try (ResultSet rs = statement.executeQuery()) {
+                    while (rs.next()) {
+                        members.add(rs.getString("member_name"));
+                    }
+                }
+            }
+        }
         return members;
     }
 }
