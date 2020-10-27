@@ -1,5 +1,6 @@
 package database;
 
+import no.kristiania.database.Member;
 import no.kristiania.database.MemberDao;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.Test;
@@ -21,12 +22,20 @@ public class MemberDaoTest {
         }
 
         MemberDao memberDao = new MemberDao(dataSource);
-        String member = exampleMember();
+        Member member = exampleMember();
         memberDao.insert(member);
-        assertThat(memberDao.list()).contains(member);
+        assertThat(memberDao.list())
+                .extracting(Member::getName)
+                .contains(member.getName());
     }
 
-    private String exampleMember() {
+    private Member exampleMember() {
+        Member member = new Member();
+        member.setName(exampleMemberName());
+        return new Member();
+    }
+
+    private String exampleMemberName() {
         String[] options = {"Ben", "Arzana", "Magbule", "Osman", "Laurent"};
         Random random = new Random();
         return options[random.nextInt(options.length)];

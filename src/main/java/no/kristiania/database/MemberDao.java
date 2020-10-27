@@ -32,28 +32,32 @@ public class MemberDao {
         Scanner scanner = new Scanner(System.in);
         String memberName = scanner.next();
 
-        memberDao.insert(memberName);
-        for (String member : memberDao.list()) {
-            System.out.println(member);
+        Member member = new Member();
+        member.setName(memberName);
+        memberDao.insert(member);
+        for (Member m : memberDao.list()) {
+            System.out.println(m);
         }
     }
 
-    public void insert(String member) throws SQLException {
+    public void insert(Member member) throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("INSERT INTO members (member_name) VALUES (?)")) {
-                statement.setString(1, member);
+                statement.setString(1, member.getName());
                 statement.executeUpdate();
             }
         }
     }
 
-    public List<String> list() throws SQLException {
+    public List<Member> list() throws SQLException {
         List<String> members = new ArrayList<>();
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM members")) {
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
+                        Member member = new Member();
                         members.add(rs.getString("member_name"));
+                        members.add(member);
                     }
                 }
             }
