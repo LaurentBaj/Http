@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Scanner;
 
 public class MemberDao {
 
@@ -14,8 +15,18 @@ public class MemberDao {
         PGSimpleDataSource dataSource = new PGSimpleDataSource();
         dataSource.setURL("jdbc:postgresql://localhost:5432/kristianiashop");
         dataSource.setUser("kristianiashopuser");
-
         dataSource.setPassword("abc");
+
+        System.out.println("Enter member name: ");
+        Scanner scanner = new Scanner(System.in);
+        String memberName = scanner.next();
+
+        try (Connection connection = dataSource.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement("INSERT INTO members (member_name) VALUES (?)")) {
+                statement.setString(1, memberName);
+                statement.executeUpdate();
+            }
+        }
 
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM members")) {
